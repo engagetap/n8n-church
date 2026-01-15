@@ -333,6 +333,87 @@ npm run format
 ./deploy.sh
 ```
 
+## Git Workflow
+
+### When to Commit
+
+Commit after completing a logical unit of work:
+- New feature or resource added
+- Bug fix completed and tested
+- Refactoring finished
+- Documentation updated
+
+### When to Push
+
+Push to remote after:
+- Feature is complete and tested locally
+- Before ending a work session (backup)
+- When ready for others to review/use changes
+
+### Common Commands
+
+```bash
+# Check what's changed
+git status
+git diff
+
+# Stage and commit changes
+git add .
+git commit -m "Add workflow card filters to trigger"
+
+# Push to remote
+git push
+
+# Pull latest changes
+git pull
+
+# View commit history
+git log --oneline
+```
+
+### Commit Message Format
+
+Use clear, descriptive messages:
+
+```
+<type>: <short description>
+
+Types:
+- feat: New feature
+- fix: Bug fix
+- docs: Documentation changes
+- refactor: Code refactoring
+- chore: Maintenance tasks
+```
+
+Examples:
+```bash
+git commit -m "feat: Add Check-Ins resource"
+git commit -m "fix: Correct webhook signature verification"
+git commit -m "docs: Update README with git instructions"
+```
+
+### Branching (Optional)
+
+For larger features:
+
+```bash
+# Create and switch to feature branch
+git checkout -b feat/check-ins
+
+# Work on feature, commit as needed
+git add .
+git commit -m "feat: Add Check-Ins events resource"
+
+# Push branch
+git push -u origin feat/check-ins
+
+# When done, merge to main
+git checkout main
+git merge feat/check-ins
+git push
+```
+
 ## Resources
 
 - [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
