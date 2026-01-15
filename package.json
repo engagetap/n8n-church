@@ -1,14 +1,17 @@
 {
 	"name": "n8n-nodes-planning-center",
-	"version": "0.1.0",
-	"description": "n8n community node for Planning Center Online - church management software for services, people, giving, groups, and more",
+	"version": "0.2.0",
+	"description": "n8n community nodes for Planning Center Online and Clearstream - church management and SMS messaging",
 	"keywords": [
 		"n8n-community-node-package",
 		"planning-center",
+		"clearstream",
 		"church",
 		"church-management",
 		"pco",
-		"ministry"
+		"ministry",
+		"sms",
+		"texting"
 	],
 	"license": "MIT",
 	"homepage": "https://github.com/n8n-church/n8n-nodes-planning-center",
@@ -39,11 +42,16 @@
 		"n8nNodesApiVersion": 1,
 		"credentials": [
 			"dist/credentials/PlanningCenterApi.credentials.js",
-			"dist/credentials/PlanningCenterOAuth2Api.credentials.js"
+			"dist/credentials/PlanningCenterOAuth2Api.credentials.js",
+			"dist/credentials/ClearstreamApi.credentials.js"
 		],
 		"nodes": [
-			"dist/nodes/PlanningCenter/PlanningCenter.node.js",
-			"dist/nodes/PlanningCenter/PlanningCenterTrigger.node.js"
+			"dist/nodes/PlanningCenter/PlanningCenterPeople.node.js",
+			"dist/nodes/PlanningCenter/PlanningCenterServices.node.js",
+			"dist/nodes/PlanningCenter/PlanningCenterCheckIns.node.js",
+			"dist/nodes/PlanningCenter/PlanningCenterTrigger.node.js",
+			"dist/nodes/Clearstream/Clearstream.node.js",
+			"dist/nodes/Clearstream/ClearstreamTrigger.node.js"
 		]
 	},
 	"devDependencies": {

@@ -72,6 +72,18 @@ export const workflowCardOperations: INodeProperties[] = [
 				description: 'Remove snooze from a card',
 				action: 'Unsnooze card',
 			},
+			{
+				name: 'Add Note',
+				value: 'addNote',
+				description: 'Add a note to a workflow card',
+				action: 'Add note to card',
+			},
+			{
+				name: 'Get Notes',
+				value: 'getNotes',
+				description: 'Get all notes from a workflow card',
+				action: 'Get notes from card',
+			},
 		],
 		default: 'getMany',
 	},
@@ -354,8 +366,8 @@ export const workflowCardFields: INodeProperties[] = [
 	//         workflowCard actions (shared fields)
 	// ----------------------------------
 	{
-		displayName: 'Workflow ID',
-		name: 'workflowId',
+		displayName: 'Person ID',
+		name: 'personId',
 		type: 'string',
 		required: true,
 		default: '',
@@ -365,7 +377,7 @@ export const workflowCardFields: INodeProperties[] = [
 				operation: ['promote', 'goBack', 'skipStep', 'snooze', 'unsnooze', 'remove', 'restore'],
 			},
 		},
-		description: 'The ID of the workflow containing the card',
+		description: 'The ID of the person whose card to perform the action on',
 	},
 	{
 		displayName: 'Card ID',
@@ -376,7 +388,7 @@ export const workflowCardFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['workflowCard'],
-				operation: ['promote', 'goBack', 'skipStep', 'snooze', 'unsnooze', 'remove', 'restore'],
+				operation: ['promote', 'goBack', 'skipStep', 'snooze', 'unsnooze', 'remove', 'restore', 'addNote', 'getNotes'],
 			},
 		},
 		description: 'The ID of the card to perform the action on',
@@ -398,5 +410,40 @@ export const workflowCardFields: INodeProperties[] = [
 			},
 		},
 		description: 'Date and time to snooze the card until',
+	},
+
+	// ----------------------------------
+	//         workflowCard:addNote / getNotes
+	// ----------------------------------
+	{
+		displayName: 'Person ID',
+		name: 'personId',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['workflowCard'],
+				operation: ['addNote', 'getNotes'],
+			},
+		},
+		description: 'The ID of the person on the workflow card',
+	},
+	{
+		displayName: 'Note',
+		name: 'note',
+		type: 'string',
+		typeOptions: {
+			rows: 4,
+		},
+		required: true,
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['workflowCard'],
+				operation: ['addNote'],
+			},
+		},
+		description: 'The note content to add to the card',
 	},
 ];

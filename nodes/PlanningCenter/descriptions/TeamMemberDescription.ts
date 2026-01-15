@@ -83,7 +83,7 @@ export const teamMemberFields: INodeProperties[] = [
 			minValue: 1,
 			maxValue: 100,
 		},
-		default: 25,
+		default: 50,
 		description: 'Max number of results to return',
 	},
 	{
@@ -105,9 +105,9 @@ export const teamMemberFields: INodeProperties[] = [
 				type: 'options',
 				options: [
 					{ name: 'All', value: '' },
-					{ name: 'Confirmed', value: 'confirmed' },
-					{ name: 'Unconfirmed', value: 'unconfirmed' },
-					{ name: 'Declined', value: 'declined' },
+					{ name: 'Confirmed', value: 'C' },
+					{ name: 'Declined', value: 'D' },
+					{ name: 'Unconfirmed', value: 'U' },
 				],
 				default: '',
 				description: 'Filter by confirmation status',

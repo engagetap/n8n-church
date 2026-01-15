@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00A4E4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0077B5;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Main message bubble -->
+  <path d="M15 20
+           C15 14, 20 10, 26 10
+           L74 10
+           C80 10, 85 14, 85 20
+           L85 55
+           C85 61, 80 65, 74 65
+           L35 65
+           L20 80
+           L20 65
+           L26 65
+           C20 65, 15 61, 15 55
+           Z"
+        fill="url(#grad)"/>
+  <!-- Text lines -->
+  <rect x="28" y="25" width="44" height="6" rx="3" fill="white" opacity="0.9"/>
+  <rect x="28" y="37" width="32" height="6" rx="3" fill="white" opacity="0.9"/>
+  <rect x="28" y="49" width="38" height="6" rx="3" fill="white" opacity="0.9"/>
+</svg>

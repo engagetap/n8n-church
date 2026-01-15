@@ -118,7 +118,7 @@ export const planFields: INodeProperties[] = [
 			},
 		},
 		default: false,
-		description: 'Whether to return all results or only up to a given limit',
+		description: 'Whether to return all results or only up to a given limit. Note: Capped at 200 plans max to avoid API rate limits.',
 	},
 	{
 		displayName: 'Limit',
@@ -135,7 +135,7 @@ export const planFields: INodeProperties[] = [
 			minValue: 1,
 			maxValue: 100,
 		},
-		default: 25,
+		default: 50,
 		description: 'Max number of results to return',
 	},
 	{

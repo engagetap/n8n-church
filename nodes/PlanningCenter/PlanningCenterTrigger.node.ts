@@ -11,15 +11,15 @@ import * as crypto from 'crypto';
 
 export class PlanningCenterTrigger implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Planning Center Trigger',
+		displayName: 'Planning Center - Webhooks',
 		name: 'planningCenterTrigger',
-		icon: 'file:planningCenter.svg',
+		icon: 'file:planningCenterWebhooks.png',
 		group: ['trigger'],
 		version: 1,
 		subtitle: '={{$parameter["events"].join(", ")}}',
 		description: 'Receive real-time webhooks from Planning Center',
 		defaults: {
-			name: 'Planning Center Trigger',
+			name: 'Planning Center - Webhooks',
 		},
 		inputs: [],
 		outputs: ['main'],

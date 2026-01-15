@@ -243,6 +243,42 @@ export const personFields: INodeProperties[] = [
 				default: [],
 				description: 'Related resources to include in the response',
 			},
+			{
+				displayName: 'Primary Phone Only',
+				name: 'primaryPhoneOnly',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to return only the primary phone number',
+				displayOptions: {
+					show: {
+						include: ['phone_numbers'],
+					},
+				},
+			},
+			{
+				displayName: 'Primary Email Only',
+				name: 'primaryEmailOnly',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to return only the primary email address',
+				displayOptions: {
+					show: {
+						include: ['emails'],
+					},
+				},
+			},
+			{
+				displayName: 'Primary Address Only',
+				name: 'primaryAddressOnly',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to return only the primary address',
+				displayOptions: {
+					show: {
+						include: ['addresses'],
+					},
+				},
+			},
 		],
 	},
 
@@ -320,6 +356,20 @@ export const personFields: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				description: 'Search by name or email address',
+			},
+			{
+				displayName: 'Search Name, Email, or Phone',
+				name: 'search_name_or_email_or_phone_number',
+				type: 'string',
+				default: '',
+				description: 'Search by name, email, or phone number',
+			},
+			{
+				displayName: 'Phone Number',
+				name: 'phone_number',
+				type: 'string',
+				default: '',
+				description: 'Filter by phone number (exact match)',
 			},
 			{
 				displayName: 'Status',

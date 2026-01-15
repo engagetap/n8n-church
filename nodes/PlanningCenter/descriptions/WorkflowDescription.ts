@@ -24,6 +24,12 @@ export const workflowOperations: INodeProperties[] = [
 				description: 'Get many workflows',
 				action: 'Get many workflows',
 			},
+			{
+				name: 'Get People',
+				value: 'getPeople',
+				description: 'Get all people in a workflow with their phone numbers',
+				action: 'Get people in workflow',
+			},
 		],
 		default: 'getMany',
 	},
@@ -157,6 +163,53 @@ export const workflowFields: INodeProperties[] = [
 				],
 				default: [],
 				description: 'Related resources to include in the response',
+			},
+		],
+	},
+
+	// ----------------------------------
+	//         workflow:getPeople
+	// ----------------------------------
+	{
+		displayName: 'Workflow ID',
+		name: 'workflowId',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['workflow'],
+				operation: ['getPeople'],
+			},
+		},
+		description: 'The ID of the workflow to get people from',
+	},
+	{
+		displayName: 'Filters',
+		name: 'filters',
+		type: 'collection',
+		placeholder: 'Add Filter',
+		default: {},
+		displayOptions: {
+			show: {
+				resource: ['workflow'],
+				operation: ['getPeople'],
+			},
+		},
+		options: [
+			{
+				displayName: 'Stage',
+				name: 'stage',
+				type: 'options',
+				options: [
+					{ name: 'All', value: '' },
+					{ name: 'Ready', value: 'ready' },
+					{ name: 'Snoozed', value: 'snoozed' },
+					{ name: 'Completed', value: 'completed' },
+					{ name: 'Removed', value: 'removed' },
+				],
+				default: 'ready',
+				description: 'Filter by card stage',
 			},
 		],
 	},
