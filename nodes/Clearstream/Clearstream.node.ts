@@ -52,6 +52,16 @@ export class Clearstream implements INodeType {
 				name: 'clearstreamApi',
 				required: true,
 			},
+			{
+				name: 'planningCenterApi',
+				required: false,
+				displayOptions: {
+					show: {
+						resource: ['utility'],
+						operation: ['validateThreadData'],
+					},
+				},
+			},
 		],
 		properties: [
 			{
@@ -799,6 +809,118 @@ export class Clearstream implements INodeType {
 							continue;
 						}
 
+						// Verify card with Planning Center if enabled
+						const verifyWithPlanningCenter = options.verifyWithPlanningCenter as boolean || false;
+						const requiredCardStage = (options.requiredCardStage as string) || 'ready';
+						let cardStage = '';
+						let cardData: IDataObject | null = null;
+
+						if (verifyWithPlanningCenter) {
+							const personId = parsedData.personId as string;
+							const cardId = parsedData.cardId as string;
+
+							if (!personId || !cardId) {
+								responseData = {
+									isValid: false,
+									error: 'Missing personId or cardId for Planning Center verification',
+									personId: personId || 'missing',
+									cardId: cardId || 'missing',
+								};
+								const executionData = this.helpers.constructExecutionMetaData(
+									this.helpers.returnJsonArray(responseData),
+									{ itemData: { item: i } },
+								);
+								returnData.push(...executionData);
+								continue;
+							}
+
+							try {
+								// Get Planning Center credentials
+								const pcCredentials = await this.getCredentials('planningCenterApi');
+								const appId = pcCredentials.appId as string;
+								const secret = pcCredentials.secret as string;
+								const authString = Buffer.from(`${appId}:${secret}`).toString('base64');
+
+								// Make API call to get the workflow card
+								const pcResponse = await this.helpers.httpRequest({
+									method: 'GET',
+									url: `https://api.planningcenteronline.com/people/v2/people/${personId}/workflow_cards/${cardId}`,
+									headers: {
+										'Authorization': `Basic ${authString}`,
+										'Content-Type': 'application/json',
+									},
+									json: true,
+								});
+
+								if (pcResponse.data) {
+									cardData = pcResponse.data as IDataObject;
+									const attributes = cardData.attributes as IDataObject || {};
+									cardStage = attributes.stage as string || '';
+
+									// Check card stage based on required stage
+									let stageValid = false;
+									switch (requiredCardStage) {
+										case 'any':
+											stageValid = true;
+											break;
+										case 'any_active':
+											stageValid = cardStage !== 'removed';
+											break;
+										case 'ready':
+											stageValid = cardStage === 'ready';
+											break;
+										case 'snoozed':
+											stageValid = cardStage === 'snoozed';
+											break;
+										default:
+											stageValid = cardStage === requiredCardStage;
+									}
+
+									if (!stageValid) {
+										responseData = {
+											isValid: false,
+											error: 'Card stage does not match required stage',
+											requiredStage: requiredCardStage,
+											actualStage: cardStage,
+											cardId,
+											personId,
+										};
+										const executionData = this.helpers.constructExecutionMetaData(
+											this.helpers.returnJsonArray(responseData),
+											{ itemData: { item: i } },
+										);
+										returnData.push(...executionData);
+										continue;
+									}
+								}
+							} catch (pcError) {
+								const errorMessage = (pcError as Error).message || 'Unknown error';
+								// Check if it's a 404 (card not found)
+								if (errorMessage.includes('404') || errorMessage.includes('not found')) {
+									responseData = {
+										isValid: false,
+										error: 'Workflow card not found in Planning Center',
+										cardId,
+										personId,
+									};
+								} else {
+									responseData = {
+										isValid: false,
+										error: 'Failed to verify card with Planning Center',
+										details: errorMessage,
+										cardId,
+										personId,
+									};
+								}
+								const executionData = this.helpers.constructExecutionMetaData(
+									this.helpers.returnJsonArray(responseData),
+									{ itemData: { item: i } },
+								);
+								returnData.push(...executionData);
+								continue;
+							}
+						}
+
 						// All validations passed - return success with all data
 						responseData = {
 							isValid: true,
@@ -812,6 +934,7 @@ export class Clearstream implements INodeType {
 							status: parsedData.status || '',
 							questionType: parsedData.questionType || '',
 							messageBody,
+							...(verifyWithPlanningCenter && { cardStage, cardVerified: true }),
 						};
 					}
 

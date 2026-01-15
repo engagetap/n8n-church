@@ -109,6 +109,26 @@ export const utilityFields: INodeProperties[] = [
 				default: true,
 				description: 'Whether to normalize phone numbers (remove non-digits) before comparing',
 			},
+			{
+				displayName: 'Verify Card With Planning Center',
+				name: 'verifyWithPlanningCenter',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to call Planning Center API to verify the card still exists and is active. Requires Planning Center credentials.',
+			},
+			{
+				displayName: 'Required Card Stage',
+				name: 'requiredCardStage',
+				type: 'options',
+				options: [
+					{ name: 'Any Active (Not Removed)', value: 'any_active' },
+					{ name: 'Ready', value: 'ready' },
+					{ name: 'Snoozed', value: 'snoozed' },
+					{ name: 'Any (Including Removed)', value: 'any' },
+				],
+				default: 'ready',
+				description: 'Required card stage for validation to pass (only used when Verify Card With Planning Center is enabled)',
+			},
 		],
 	},
 
