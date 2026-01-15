@@ -1,0 +1,22 @@
+{
+	"node": "planningCenter",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Productivity"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://developer.planning.center/docs/#/overview/authentication"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://developer.planning.center"
+			}
+		]
+	},
+	"alias": ["pco", "church", "ministry", "planning center online", "people", "services"],
+	"subcategories": {
+		"Productivity": ["Church Management"]
+	}
+}
