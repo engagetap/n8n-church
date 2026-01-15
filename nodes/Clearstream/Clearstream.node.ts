@@ -53,7 +53,7 @@ export class Clearstream implements INodeType {
 				required: true,
 			},
 			{
-				name: 'planningCenterApi',
+				name: 'planningCenterOAuth2Api',
 				required: false,
 				displayOptions: {
 					show: {
@@ -835,22 +835,16 @@ export class Clearstream implements INodeType {
 							}
 
 							try {
-								// Get Planning Center credentials
-								const pcCredentials = await this.getCredentials('planningCenterApi');
-								const appId = pcCredentials.appId as string;
-								const secret = pcCredentials.secret as string;
-								const authString = Buffer.from(`${appId}:${secret}`).toString('base64');
-
-								// Make API call to get the workflow card
-								const pcResponse = await this.helpers.httpRequest({
-									method: 'GET',
-									url: `https://api.planningcenteronline.com/people/v2/people/${personId}/workflow_cards/${cardId}`,
-									headers: {
-										'Authorization': `Basic ${authString}`,
-										'Content-Type': 'application/json',
+								// Make API call to get the workflow card using OAuth2
+								const pcResponse = await this.helpers.httpRequestWithAuthentication.call(
+									this,
+									'planningCenterOAuth2Api',
+									{
+										method: 'GET',
+										url: `https://api.planningcenteronline.com/people/v2/people/${personId}/workflow_cards/${cardId}`,
+										json: true,
 									},
-									json: true,
-								});
+								);
 
 								if (pcResponse.data) {
 									cardData = pcResponse.data as IDataObject;
