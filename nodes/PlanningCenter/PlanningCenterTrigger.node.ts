@@ -152,6 +152,34 @@ export class PlanningCenterTrigger implements INodeType {
 						name: 'Check-In - Updated',
 						value: 'check_ins.v2.events.check_in.updated',
 					},
+					{
+						name: 'Check-In - Destroyed',
+						value: 'check_ins.v2.events.check_in.destroyed',
+					},
+					{
+						name: 'Headcount - Created',
+						value: 'check_ins.v2.events.headcount.created',
+					},
+					{
+						name: 'Headcount - Updated',
+						value: 'check_ins.v2.events.headcount.updated',
+					},
+					{
+						name: 'Headcount - Destroyed',
+						value: 'check_ins.v2.events.headcount.destroyed',
+					},
+					{
+						name: 'Pass - Created',
+						value: 'check_ins.v2.events.pass.created',
+					},
+					{
+						name: 'Pass - Updated',
+						value: 'check_ins.v2.events.pass.updated',
+					},
+					{
+						name: 'Pass - Destroyed',
+						value: 'check_ins.v2.events.pass.destroyed',
+					},
 					// Giving Events
 					{
 						name: 'Donation - Created',
