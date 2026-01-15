@@ -139,6 +139,39 @@ See [Docker Installation](#docker-installation) below.
 
 **Includes:** person, assignee, current_step, workflow, activities, notes
 
+### Check-In Event (Check-Ins Product)
+
+| Operation | Description |
+|-----------|-------------|
+| **Get** | Get an event by ID |
+| **Get Many** | Get many events |
+
+**Filters:** name, archive status (archived/not_archived)
+
+**Includes:** attendance_types, event_periods, event_times, locations
+
+### Check-In (Check-Ins Product)
+
+| Operation | Description |
+|-----------|-------------|
+| **Get** | Get a check-in by ID |
+| **Get Many** | Get many check-ins |
+
+**Filters:** event_id, location_id, person_id, status (checked_out/first_time/guest/not_checked_out/regular/volunteer), security_code, created_after, created_before, checked_out_after
+
+**Includes:** checked_in_at (station), checked_in_by, checked_out_by, event, event_period, event_times, locations, options, person
+
+### Check-In Location (Check-Ins Product)
+
+| Operation | Description |
+|-----------|-------------|
+| **Get** | Get a location by ID |
+| **Get Many** | Get locations for an event |
+
+**Filters:** location type (locations/root)
+
+**Includes:** check_ins, event, locations (children), options, parent
+
 ## Planning Center Trigger
 
 Receive real-time webhooks from Planning Center when events occur.
@@ -425,7 +458,7 @@ git push
 - [x] Services product (Service Types, Plans, Team Members)
 - [x] Workflows (Workflow, Workflow Step, Workflow Card with actions)
 - [x] Webhook triggers (real-time events from People, Services, Check-Ins, Giving)
-- [ ] Check-Ins product (Events, Check-ins)
+- [x] Check-Ins product (Events, Check-ins, Locations)
 - [ ] Groups product (Groups, Memberships)
 - [ ] Giving product (Donations, Funds)
 

@@ -7,3 +7,6 @@ export * from './TeamMemberDescription';
 export * from './WorkflowDescription';
 export * from './WorkflowStepDescription';
 export * from './WorkflowCardDescription';
+export * from './CheckInEventDescription';
+export * from './CheckInDescription';
+export * from './CheckInLocationDescription';

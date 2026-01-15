@@ -34,6 +34,12 @@ import {
 	workflowStepOperations,
 	workflowCardFields,
 	workflowCardOperations,
+	checkInEventFields,
+	checkInEventOperations,
+	checkInFields,
+	checkInOperations,
+	checkInLocationFields,
+	checkInLocationOperations,
 } from './descriptions';
 
 export class PlanningCenter implements INodeType {
@@ -94,6 +100,18 @@ export class PlanningCenter implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
+						name: 'Check-In',
+						value: 'checkIn',
+					},
+					{
+						name: 'Check-In Event',
+						value: 'checkInEvent',
+					},
+					{
+						name: 'Check-In Location',
+						value: 'checkInLocation',
+					},
+					{
 						name: 'Form',
 						value: 'form',
 					},
@@ -132,6 +150,15 @@ export class PlanningCenter implements INodeType {
 				],
 				default: 'person',
 			},
+			// Check-In operations and fields
+			...checkInOperations,
+			...checkInFields,
+			// Check-In Event operations and fields
+			...checkInEventOperations,
+			...checkInEventFields,
+			// Check-In Location operations and fields
+			...checkInLocationOperations,
+			...checkInLocationFields,
 			// Form operations and fields
 			...formOperations,
 			...formFields,
@@ -172,6 +199,254 @@ export class PlanningCenter implements INodeType {
 		for (let i = 0; i < items.length; i++) {
 			try {
 				let responseData: IDataObject | IDataObject[] = {};
+
+				// ==========================================
+				// Check-In resource
+				// ==========================================
+				if (resource === 'checkIn') {
+					// Get a check-in
+					if (operation === 'get') {
+						const checkInId = this.getNodeParameter('checkInId', i) as string;
+						const options = this.getNodeParameter('options', i) as IDataObject;
+						const qs: IDataObject = {};
+
+						if (options.include) {
+							qs.include = (options.include as string[]).join(',');
+						}
+
+						const response = await planningCenterApiRequest.call(
+							this,
+							'GET',
+							`/check-ins/v2/check_ins/${checkInId}`,
+							{},
+							qs,
+						);
+
+						responseData = parseJsonApiResponse(response);
+						if (options.include && response.included) {
+							const includesMap = parseJsonApiIncludes(response);
+							(responseData as IDataObject).included = Object.fromEntries(includesMap);
+						}
+					}
+
+					// Get many check-ins
+					if (operation === 'getMany') {
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						const filters = this.getNodeParameter('filters', i) as IDataObject;
+						const options = this.getNodeParameter('options', i) as IDataObject;
+						const qs: IDataObject = {};
+
+						// Build query string
+						if (filters.eventId) {
+							qs['where[event_id]'] = filters.eventId;
+						}
+						if (filters.locationId) {
+							qs['where[location_id]'] = filters.locationId;
+						}
+						if (filters.personId) {
+							qs['where[person_id]'] = filters.personId;
+						}
+						if (filters.securityCode) {
+							qs['where[security_code]'] = filters.securityCode;
+						}
+						if (filters.filter) {
+							qs.filter = filters.filter;
+						}
+						if (filters.createdAfter) {
+							qs['where[created_at][gte]'] = filters.createdAfter;
+						}
+						if (filters.createdBefore) {
+							qs['where[created_at][lte]'] = filters.createdBefore;
+						}
+						if (filters.checkedOutAfter) {
+							qs['where[checked_out_at][gte]'] = filters.checkedOutAfter;
+						}
+						if (options.include) {
+							qs.include = (options.include as string[]).join(',');
+						}
+						if (options.order) {
+							qs.order = options.order;
+						}
+
+						if (returnAll) {
+							const allData = await planningCenterApiRequestAllItems.call(
+								this,
+								'GET',
+								'/check-ins/v2/check_ins',
+								{},
+								qs,
+							);
+							responseData = allData.map((item) =>
+								parseJsonApiResponse({ data: item }),
+							) as IDataObject[];
+						} else {
+							const limit = this.getNodeParameter('limit', i) as number;
+							qs.per_page = limit;
+
+							const response = await planningCenterApiRequest.call(
+								this,
+								'GET',
+								'/check-ins/v2/check_ins',
+								{},
+								qs,
+							);
+
+							responseData = parseJsonApiResponse(response) as IDataObject[];
+						}
+					}
+				}
+
+				// ==========================================
+				// Check-In Event resource
+				// ==========================================
+				if (resource === 'checkInEvent') {
+					// Get an event
+					if (operation === 'get') {
+						const eventId = this.getNodeParameter('eventId', i) as string;
+						const options = this.getNodeParameter('options', i) as IDataObject;
+						const qs: IDataObject = {};
+
+						if (options.include) {
+							qs.include = (options.include as string[]).join(',');
+						}
+
+						const response = await planningCenterApiRequest.call(
+							this,
+							'GET',
+							`/check-ins/v2/events/${eventId}`,
+							{},
+							qs,
+						);
+
+						responseData = parseJsonApiResponse(response);
+						if (options.include && response.included) {
+							const includesMap = parseJsonApiIncludes(response);
+							(responseData as IDataObject).included = Object.fromEntries(includesMap);
+						}
+					}
+
+					// Get many events
+					if (operation === 'getMany') {
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						const filters = this.getNodeParameter('filters', i) as IDataObject;
+						const options = this.getNodeParameter('options', i) as IDataObject;
+						const qs: IDataObject = {};
+
+						if (filters.name) {
+							qs['where[name]'] = filters.name;
+						}
+						if (filters.filter) {
+							qs.filter = filters.filter;
+						}
+						if (options.include) {
+							qs.include = (options.include as string[]).join(',');
+						}
+						if (options.order) {
+							qs.order = options.order;
+						}
+
+						if (returnAll) {
+							const allData = await planningCenterApiRequestAllItems.call(
+								this,
+								'GET',
+								'/check-ins/v2/events',
+								{},
+								qs,
+							);
+							responseData = allData.map((item) =>
+								parseJsonApiResponse({ data: item }),
+							) as IDataObject[];
+						} else {
+							const limit = this.getNodeParameter('limit', i) as number;
+							qs.per_page = limit;
+
+							const response = await planningCenterApiRequest.call(
+								this,
+								'GET',
+								'/check-ins/v2/events',
+								{},
+								qs,
+							);
+
+							responseData = parseJsonApiResponse(response) as IDataObject[];
+						}
+					}
+				}
+
+				// ==========================================
+				// Check-In Location resource
+				// ==========================================
+				if (resource === 'checkInLocation') {
+					// Get a location
+					if (operation === 'get') {
+						const locationId = this.getNodeParameter('locationId', i) as string;
+						const options = this.getNodeParameter('options', i) as IDataObject;
+						const qs: IDataObject = {};
+
+						if (options.include) {
+							qs.include = (options.include as string[]).join(',');
+						}
+
+						const response = await planningCenterApiRequest.call(
+							this,
+							'GET',
+							`/check-ins/v2/locations/${locationId}`,
+							{},
+							qs,
+						);
+
+						responseData = parseJsonApiResponse(response);
+						if (options.include && response.included) {
+							const includesMap = parseJsonApiIncludes(response);
+							(responseData as IDataObject).included = Object.fromEntries(includesMap);
+						}
+					}
+
+					// Get many locations
+					if (operation === 'getMany') {
+						const eventId = this.getNodeParameter('eventId', i) as string;
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						const filters = this.getNodeParameter('filters', i) as IDataObject;
+						const options = this.getNodeParameter('options', i) as IDataObject;
+						const qs: IDataObject = {};
+
+						if (filters.filter) {
+							qs.filter = filters.filter;
+						}
+						if (options.include) {
+							qs.include = (options.include as string[]).join(',');
+						}
+						if (options.order) {
+							qs.order = options.order;
+						}
+
+						if (returnAll) {
+							const allData = await planningCenterApiRequestAllItems.call(
+								this,
+								'GET',
+								`/check-ins/v2/events/${eventId}/locations`,
+								{},
+								qs,
+							);
+							responseData = allData.map((item) =>
+								parseJsonApiResponse({ data: item }),
+							) as IDataObject[];
+						} else {
+							const limit = this.getNodeParameter('limit', i) as number;
+							qs.per_page = limit;
+
+							const response = await planningCenterApiRequest.call(
+								this,
+								'GET',
+								`/check-ins/v2/events/${eventId}/locations`,
+								{},
+								qs,
+							);
+
+							responseData = parseJsonApiResponse(response) as IDataObject[];
+						}
+					}
+				}
 
 				// ==========================================
 				// Form resource
