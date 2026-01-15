@@ -14,6 +14,7 @@ DOCKER_HOST=${DOCKER_HOST:-10.5.0.99}
 DOCKER_USER=${DOCKER_USER:-root}
 N8N_CONTAINER_NAME=${N8N_CONTAINER_NAME:-n8n}
 N8N_VOLUME_PATH=${N8N_VOLUME_PATH:-/media/data/docker/volumes/n8n_data/_data}
+WEBHOOK_URL=${WEBHOOK_URL:-https://localhost:5678}
 NODE_NAME="n8n-nodes-planning-center"
 
 echo "🔨 Building node..."
@@ -67,7 +68,7 @@ sshpass -p "$DOCKER_PASSWORD" ssh ${DOCKER_USER}@${DOCKER_HOST} << EOF
         echo "   docker stop ${N8N_CONTAINER_NAME}"
         echo "   docker rm ${N8N_CONTAINER_NAME}"
         echo "   docker run -d --name ${N8N_CONTAINER_NAME} --restart unless-stopped -p 5678:5678 \\"
-        echo "     -e WEBHOOK_URL=https://automate.dylanlambert.me \\"
+        echo "     -e WEBHOOK_URL=${WEBHOOK_URL} \\"
         echo "     -e N8N_CUSTOM_EXTENSIONS=/home/node/.n8n/nodes \\"
         echo "     -v n8n_data:/home/node/.n8n \\"
         echo "     docker.n8n.io/n8nio/n8n:latest"
