@@ -172,6 +172,45 @@ See [Docker Installation](#docker-installation) below.
 
 **Includes:** check_ins, event, locations (children), options, parent
 
+### Group (Groups Product)
+
+| Operation | Description |
+|-----------|-------------|
+| **Get** | Get a group by ID |
+| **Get Many** | Get many groups |
+
+**Filters:** group_type_id, name, enrollment_open, enrollment_strategy, archive status
+
+**Includes:** group_type, location
+
+### Group Type (Groups Product)
+
+| Operation | Description |
+|-----------|-------------|
+| **Get** | Get a group type by ID |
+| **Get Many** | Get all group types |
+
+### Group Membership (Groups Product)
+
+| Operation | Description |
+|-----------|-------------|
+| **Get Many** | Get memberships for a group |
+
+**Filters:** role (leader/member)
+
+**Includes:** person
+
+### Group Event (Groups Product)
+
+| Operation | Description |
+|-----------|-------------|
+| **Get** | Get a group event by ID |
+| **Get Many** | Get events for a group |
+
+**Filters:** starts_after, starts_before, upcoming only
+
+**Includes:** group, location
+
 ## Planning Center Trigger
 
 Receive real-time webhooks from Planning Center when events occur.
@@ -459,8 +498,9 @@ git push
 - [x] Workflows (Workflow, Workflow Step, Workflow Card with actions)
 - [x] Webhook triggers (real-time events from People, Services, Check-Ins, Giving)
 - [x] Check-Ins product (Events, Check-ins, Locations)
-- [ ] Groups product (Groups, Memberships)
+- [x] Groups product (Groups, Group Types, Memberships, Events)
 - [ ] Giving product (Donations, Funds)
+- [ ] Calendar product (Events, Event Instances)
 
 ## License
 
