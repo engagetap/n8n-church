@@ -10,3 +10,7 @@ export * from './WorkflowCardDescription';
 export * from './CheckInEventDescription';
 export * from './CheckInDescription';
 export * from './CheckInLocationDescription';
+export * from './GroupDescription';
+export * from './GroupTypeDescription';
+export * from './GroupMembershipDescription';
+export * from './GroupEventDescription';

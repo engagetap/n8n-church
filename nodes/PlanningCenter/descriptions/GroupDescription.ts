@@ -1,6 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-export const checkInEventOperations: INodeProperties[] = [
+export const groupOperations: INodeProperties[] = [
 	{
 		displayName: 'Operation',
 		name: 'operation',
@@ -8,40 +8,40 @@ export const checkInEventOperations: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['group'],
 			},
 		},
 		options: [
 			{
 				name: 'Get',
 				value: 'get',
-				description: 'Get an event by ID',
-				action: 'Get an event',
+				description: 'Get a group by ID',
+				action: 'Get a group',
 			},
 			{
 				name: 'Get Many',
 				value: 'getMany',
-				description: 'Get many events',
-				action: 'Get many events',
+				description: 'Get many groups',
+				action: 'Get many groups',
 			},
 		],
 		default: 'getMany',
 	},
 ];
 
-export const checkInEventFields: INodeProperties[] = [
+export const groupFields: INodeProperties[] = [
 	// ----------------------------------
-	//         checkInEvent:get
+	//         group:get
 	// ----------------------------------
 	{
-		displayName: 'Event',
-		name: 'eventId',
+		displayName: 'Group',
+		name: 'groupId',
 		type: 'resourceLocator',
 		default: { mode: 'list', value: '' },
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['group'],
 				operation: ['get'],
 			},
 		},
@@ -51,7 +51,7 @@ export const checkInEventFields: INodeProperties[] = [
 				name: 'list',
 				type: 'list',
 				typeOptions: {
-					searchListMethod: 'searchCheckInEvents',
+					searchListMethod: 'searchGroups',
 					searchable: true,
 				},
 			},
@@ -62,11 +62,11 @@ export const checkInEventFields: INodeProperties[] = [
 				placeholder: '12345678',
 			},
 		],
-		description: 'The event to retrieve',
+		description: 'The group to retrieve',
 	},
 
 	// ----------------------------------
-	//         checkInEvent:getMany
+	//         group:getMany
 	// ----------------------------------
 	{
 		displayName: 'Return All',
@@ -75,7 +75,7 @@ export const checkInEventFields: INodeProperties[] = [
 		default: false,
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['group'],
 				operation: ['getMany'],
 			},
 		},
@@ -92,7 +92,7 @@ export const checkInEventFields: INodeProperties[] = [
 		},
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['group'],
 				operation: ['getMany'],
 				returnAll: [false],
 			},
@@ -101,7 +101,7 @@ export const checkInEventFields: INodeProperties[] = [
 	},
 
 	// ----------------------------------
-	//         checkInEvent:filters
+	//         group:filters
 	// ----------------------------------
 	{
 		displayName: 'Filters',
@@ -111,20 +111,63 @@ export const checkInEventFields: INodeProperties[] = [
 		default: {},
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['group'],
 				operation: ['getMany'],
 			},
 		},
 		options: [
 			{
+				displayName: 'Group Type ID',
+				name: 'groupTypeId',
+				type: 'string',
+				default: '',
+				description: 'Filter groups by group type ID',
+			},
+			{
 				displayName: 'Name',
 				name: 'name',
 				type: 'string',
 				default: '',
-				description: 'Filter events by name',
+				description: 'Filter groups by name',
 			},
 			{
-				displayName: 'Filter Type',
+				displayName: 'Enrollment Open',
+				name: 'enrollmentOpen',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to only show groups with open enrollment',
+			},
+			{
+				displayName: 'Enrollment Strategy',
+				name: 'enrollmentStrategy',
+				type: 'options',
+				default: '',
+				options: [
+					{
+						name: 'All',
+						value: '',
+						description: 'All enrollment strategies',
+					},
+					{
+						name: 'Open Signup',
+						value: 'open_signup',
+						description: 'Groups with open signup',
+					},
+					{
+						name: 'Request to Join',
+						value: 'request_to_join',
+						description: 'Groups requiring request to join',
+					},
+					{
+						name: 'Closed',
+						value: 'closed',
+						description: 'Groups with closed enrollment',
+					},
+				],
+				description: 'Filter by enrollment strategy',
+			},
+			{
+				displayName: 'Archive Status',
 				name: 'filter',
 				type: 'options',
 				default: '',
@@ -132,26 +175,26 @@ export const checkInEventFields: INodeProperties[] = [
 					{
 						name: 'All',
 						value: '',
-						description: 'All events',
+						description: 'All groups',
 					},
 					{
 						name: 'Archived',
 						value: 'archived',
-						description: 'Only archived events',
+						description: 'Only archived groups',
 					},
 					{
 						name: 'Not Archived',
 						value: 'not_archived',
-						description: 'Only active (non-archived) events',
+						description: 'Only active (non-archived) groups',
 					},
 				],
-				description: 'Filter events by archive status',
+				description: 'Filter groups by archive status',
 			},
 		],
 	},
 
 	// ----------------------------------
-	//         checkInEvent:options
+	//         group:options
 	// ----------------------------------
 	{
 		displayName: 'Options',
@@ -161,7 +204,7 @@ export const checkInEventFields: INodeProperties[] = [
 		default: {},
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['group'],
 				operation: ['get', 'getMany'],
 			},
 		},
@@ -173,20 +216,12 @@ export const checkInEventFields: INodeProperties[] = [
 				default: [],
 				options: [
 					{
-						name: 'Attendance Types',
-						value: 'attendance_types',
+						name: 'Group Type',
+						value: 'group_type',
 					},
 					{
-						name: 'Event Periods',
-						value: 'event_periods',
-					},
-					{
-						name: 'Event Times',
-						value: 'event_times',
-					},
-					{
-						name: 'Locations',
-						value: 'locations',
+						name: 'Location',
+						value: 'location',
 					},
 				],
 				description: 'Related resources to include in the response',
@@ -195,7 +230,7 @@ export const checkInEventFields: INodeProperties[] = [
 				displayName: 'Order',
 				name: 'order',
 				type: 'options',
-				default: '-created_at',
+				default: 'name',
 				options: [
 					{
 						name: 'Created At (Newest First)',

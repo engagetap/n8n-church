@@ -28,18 +28,35 @@ export const teamMemberFields: INodeProperties[] = [
 	//         teamMember:getMany
 	// ----------------------------------
 	{
-		displayName: 'Service Type ID',
+		displayName: 'Service Type',
 		name: 'serviceTypeId',
-		type: 'string',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		required: true,
-		default: '',
 		displayOptions: {
 			show: {
 				resource: ['teamMember'],
 				operation: ['getMany'],
 			},
 		},
-		description: 'The ID of the service type',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'searchServiceTypes',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: '12345678',
+			},
+		],
+		description: 'The service type',
 	},
 	{
 		displayName: 'Plan ID',

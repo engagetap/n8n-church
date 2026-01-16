@@ -52,18 +52,35 @@ export const checkInLocationFields: INodeProperties[] = [
 	//         checkInLocation:getMany
 	// ----------------------------------
 	{
-		displayName: 'Event ID',
+		displayName: 'Event',
 		name: 'eventId',
-		type: 'string',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		required: true,
-		default: '',
 		displayOptions: {
 			show: {
 				resource: ['checkInLocation'],
 				operation: ['getMany'],
 			},
 		},
-		description: 'The event ID to get locations for',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'searchCheckInEvents',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: '12345678',
+			},
+		],
+		description: 'The event to get locations for',
 	},
 	{
 		displayName: 'Return All',

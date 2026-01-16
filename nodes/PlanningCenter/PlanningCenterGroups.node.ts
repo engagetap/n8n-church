@@ -17,25 +17,27 @@ import {
 } from './GenericFunctions';
 
 import {
-	checkInEventFields,
-	checkInEventOperations,
-	checkInFields,
-	checkInOperations,
-	checkInLocationFields,
-	checkInLocationOperations,
+	groupFields,
+	groupOperations,
+	groupTypeFields,
+	groupTypeOperations,
+	groupMembershipFields,
+	groupMembershipOperations,
+	groupEventFields,
+	groupEventOperations,
 } from './descriptions';
 
-export class PlanningCenterCheckIns implements INodeType {
+export class PlanningCenterGroups implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Planning Center - Check-Ins',
-		name: 'planningCenterCheckIns',
-		icon: 'file:planningCenterCheckIns.png',
+		displayName: 'Planning Center - Groups',
+		name: 'planningCenterGroups',
+		icon: 'file:planningCenterGroups.png',
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Work with Check-In Events, Check-Ins, and Locations',
+		description: 'Work with Groups, Group Types, Memberships, and Events',
 		defaults: {
-			name: 'Planning Center - Check-Ins',
+			name: 'Planning Center - Groups',
 		},
 		inputs: ['main'],
 		outputs: ['main'],
@@ -83,35 +85,42 @@ export class PlanningCenterCheckIns implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
-						name: 'Check-In',
-						value: 'checkIn',
+						name: 'Group',
+						value: 'group',
 					},
 					{
-						name: 'Check-In Event',
-						value: 'checkInEvent',
+						name: 'Group Event',
+						value: 'groupEvent',
 					},
 					{
-						name: 'Check-In Location',
-						value: 'checkInLocation',
+						name: 'Group Membership',
+						value: 'groupMembership',
+					},
+					{
+						name: 'Group Type',
+						value: 'groupType',
 					},
 				],
-				default: 'checkInEvent',
+				default: 'group',
 			},
-			// Check-In operations and fields
-			...checkInOperations,
-			...checkInFields,
-			// Check-In Event operations and fields
-			...checkInEventOperations,
-			...checkInEventFields,
-			// Check-In Location operations and fields
-			...checkInLocationOperations,
-			...checkInLocationFields,
+			// Group operations and fields
+			...groupOperations,
+			...groupFields,
+			// Group Type operations and fields
+			...groupTypeOperations,
+			...groupTypeFields,
+			// Group Membership operations and fields
+			...groupMembershipOperations,
+			...groupMembershipFields,
+			// Group Event operations and fields
+			...groupEventOperations,
+			...groupEventFields,
 		],
 	};
 
 	methods = {
 		listSearch: {
-			async searchCheckInEvents(
+			async searchGroups(
 				this: ILoadOptionsFunctions,
 				filter?: string,
 			): Promise<INodeListSearchResult> {
@@ -129,7 +138,7 @@ export class PlanningCenterCheckIns implements INodeType {
 						'planningCenterOAuth2Api',
 						{
 							method: 'GET',
-							url: 'https://api.planningcenteronline.com/check-ins/v2/events',
+							url: 'https://api.planningcenteronline.com/groups/v2/groups',
 							qs,
 							json: true,
 						},
@@ -138,7 +147,7 @@ export class PlanningCenterCheckIns implements INodeType {
 					const credentials = await this.getCredentials('planningCenterApi');
 					response = await this.helpers.httpRequest({
 						method: 'GET',
-						url: 'https://api.planningcenteronline.com/check-ins/v2/events',
+						url: 'https://api.planningcenteronline.com/groups/v2/groups',
 						qs,
 						auth: {
 							username: credentials.applicationId as string,
@@ -149,14 +158,14 @@ export class PlanningCenterCheckIns implements INodeType {
 				}
 
 				const results: INodeListSearchItems[] = (response.data || []).map(
-					(event: IDataObject) => {
-						const attrs = event.attributes as IDataObject;
+					(group: IDataObject) => {
+						const attrs = group.attributes as IDataObject;
 
 						// Build info parts for display in name
 						const infoParts: string[] = [];
 
-						if (attrs.frequency) {
-							infoParts.push(attrs.frequency as string);
+						if (attrs.memberships_count !== undefined) {
+							infoParts.push(`${attrs.memberships_count} members`);
 						}
 
 						if (attrs.archived_at) {
@@ -164,14 +173,71 @@ export class PlanningCenterCheckIns implements INodeType {
 						}
 
 						// Format name with info in parentheses
-						const eventName = attrs.name as string;
+						const groupName = attrs.name as string;
 						const displayName = infoParts.length > 0
-							? `${eventName} (${infoParts.join(', ')})`
-							: eventName;
+							? `${groupName} (${infoParts.join(', ')})`
+							: groupName;
 
 						return {
 							name: displayName,
-							value: event.id as string,
+							value: group.id as string,
+						};
+					},
+				);
+
+				return { results };
+			},
+
+			async searchGroupTypes(
+				this: ILoadOptionsFunctions,
+				filter?: string,
+			): Promise<INodeListSearchResult> {
+				const qs: IDataObject = { per_page: 25 };
+				if (filter) {
+					qs['where[name]'] = filter;
+				}
+
+				const authentication = this.getNodeParameter('authentication', 0) as string;
+				let response;
+
+				if (authentication === 'oAuth2') {
+					response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'planningCenterOAuth2Api',
+						{
+							method: 'GET',
+							url: 'https://api.planningcenteronline.com/groups/v2/group_types',
+							qs,
+							json: true,
+						},
+					);
+				} else {
+					const credentials = await this.getCredentials('planningCenterApi');
+					response = await this.helpers.httpRequest({
+						method: 'GET',
+						url: 'https://api.planningcenteronline.com/groups/v2/group_types',
+						qs,
+						auth: {
+							username: credentials.applicationId as string,
+							password: credentials.secret as string,
+						},
+						json: true,
+					});
+				}
+
+				const results: INodeListSearchItems[] = (response.data || []).map(
+					(groupType: IDataObject) => {
+						const attrs = groupType.attributes as IDataObject;
+
+						// Format name with group count in parentheses
+						const typeName = attrs.name as string;
+						const displayName = attrs.groups_count !== undefined
+							? `${typeName} (${attrs.groups_count} groups)`
+							: typeName;
+
+						return {
+							name: displayName,
+							value: groupType.id as string,
 						};
 					},
 				);
@@ -193,12 +259,12 @@ export class PlanningCenterCheckIns implements INodeType {
 				let responseData: IDataObject | IDataObject[] = {};
 
 				// ==========================================
-				// Check-In resource
+				// Group resource
 				// ==========================================
-				if (resource === 'checkIn') {
-					// Get a check-in
+				if (resource === 'group') {
+					// Get a group
 					if (operation === 'get') {
-						const checkInId = this.getNodeParameter('checkInId', i) as string;
+						const groupId = this.getNodeParameter('groupId', i, '', { extractValue: true }) as string;
 						const options = this.getNodeParameter('options', i) as IDataObject;
 						const qs: IDataObject = {};
 
@@ -209,7 +275,7 @@ export class PlanningCenterCheckIns implements INodeType {
 						const response = await planningCenterApiRequest.call(
 							this,
 							'GET',
-							`/check-ins/v2/check_ins/${checkInId}`,
+							`/groups/v2/groups/${groupId}`,
 							{},
 							qs,
 						);
@@ -221,34 +287,25 @@ export class PlanningCenterCheckIns implements INodeType {
 						}
 					}
 
-					// Get many check-ins
+					// Get many groups
 					if (operation === 'getMany') {
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						const filters = this.getNodeParameter('filters', i) as IDataObject;
 						const options = this.getNodeParameter('options', i) as IDataObject;
 						const qs: IDataObject = {};
 
-						// Build query string
-						if (filters.eventId) {
-							qs['where[event_id]'] = filters.eventId;
+						// Build query string from filters
+						if (filters.groupTypeId) {
+							qs['where[group_type_id]'] = filters.groupTypeId;
 						}
-						if (filters.locationId) {
-							qs['where[location_id]'] = filters.locationId;
+						if (filters.name) {
+							qs['where[name]'] = filters.name;
 						}
-						if (filters.personId) {
-							qs['where[person_id]'] = filters.personId;
+						if (filters.enrollmentOpen) {
+							qs['where[enrollment_open]'] = true;
 						}
-						if (filters.securityCode) {
-							qs['where[security_code]'] = filters.securityCode;
-						}
-						if (filters.createdAfter) {
-							qs['where[created_at][gte]'] = filters.createdAfter;
-						}
-						if (filters.createdBefore) {
-							qs['where[created_at][lte]'] = filters.createdBefore;
-						}
-						if (filters.checkedOutAfter) {
-							qs['where[checked_out_at][gte]'] = filters.checkedOutAfter;
+						if (filters.enrollmentStrategy) {
+							qs['where[enrollment_strategy]'] = filters.enrollmentStrategy;
 						}
 						if (filters.filter) {
 							qs.filter = filters.filter;
@@ -264,7 +321,7 @@ export class PlanningCenterCheckIns implements INodeType {
 							const allData = await planningCenterApiRequestAllItems.call(
 								this,
 								'GET',
-								'/check-ins/v2/check_ins',
+								'/groups/v2/groups',
 								{},
 								qs,
 							);
@@ -278,7 +335,7 @@ export class PlanningCenterCheckIns implements INodeType {
 							const response = await planningCenterApiRequest.call(
 								this,
 								'GET',
-								'/check-ins/v2/check_ins',
+								'/groups/v2/groups',
 								{},
 								qs,
 							);
@@ -289,12 +346,117 @@ export class PlanningCenterCheckIns implements INodeType {
 				}
 
 				// ==========================================
-				// Check-In Event resource
+				// Group Type resource
 				// ==========================================
-				if (resource === 'checkInEvent') {
+				if (resource === 'groupType') {
+					// Get a group type
+					if (operation === 'get') {
+						const groupTypeId = this.getNodeParameter('groupTypeId', i, '', { extractValue: true }) as string;
+
+						const response = await planningCenterApiRequest.call(
+							this,
+							'GET',
+							`/groups/v2/group_types/${groupTypeId}`,
+						);
+
+						responseData = parseJsonApiResponse(response);
+					}
+
+					// Get many group types
+					if (operation === 'getMany') {
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						const options = this.getNodeParameter('options', i) as IDataObject;
+						const qs: IDataObject = {};
+
+						if (options.order) {
+							qs.order = options.order;
+						}
+
+						if (returnAll) {
+							const allData = await planningCenterApiRequestAllItems.call(
+								this,
+								'GET',
+								'/groups/v2/group_types',
+								{},
+								qs,
+							);
+							responseData = allData.map((item) =>
+								parseJsonApiResponse({ data: item }),
+							) as IDataObject[];
+						} else {
+							const limit = this.getNodeParameter('limit', i) as number;
+							qs.per_page = limit;
+
+							const response = await planningCenterApiRequest.call(
+								this,
+								'GET',
+								'/groups/v2/group_types',
+								{},
+								qs,
+							);
+
+							responseData = parseJsonApiResponse(response) as IDataObject[];
+						}
+					}
+				}
+
+				// ==========================================
+				// Group Membership resource
+				// ==========================================
+				if (resource === 'groupMembership') {
+					// Get many memberships
+					if (operation === 'getMany') {
+						const groupId = this.getNodeParameter('groupId', i, '', { extractValue: true }) as string;
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						const filters = this.getNodeParameter('filters', i) as IDataObject;
+						const options = this.getNodeParameter('options', i) as IDataObject;
+						const qs: IDataObject = {};
+
+						if (filters.role) {
+							qs['where[role]'] = filters.role;
+						}
+						if (options.include) {
+							qs.include = (options.include as string[]).join(',');
+						}
+						if (options.order) {
+							qs.order = options.order;
+						}
+
+						if (returnAll) {
+							const allData = await planningCenterApiRequestAllItems.call(
+								this,
+								'GET',
+								`/groups/v2/groups/${groupId}/memberships`,
+								{},
+								qs,
+							);
+							responseData = allData.map((item) =>
+								parseJsonApiResponse({ data: item }),
+							) as IDataObject[];
+						} else {
+							const limit = this.getNodeParameter('limit', i) as number;
+							qs.per_page = limit;
+
+							const response = await planningCenterApiRequest.call(
+								this,
+								'GET',
+								`/groups/v2/groups/${groupId}/memberships`,
+								{},
+								qs,
+							);
+
+							responseData = parseJsonApiResponse(response) as IDataObject[];
+						}
+					}
+				}
+
+				// ==========================================
+				// Group Event resource
+				// ==========================================
+				if (resource === 'groupEvent') {
 					// Get an event
 					if (operation === 'get') {
-						const eventId = this.getNodeParameter('eventId', i, '', { extractValue: true }) as string;
+						const eventId = this.getNodeParameter('eventId', i) as string;
 						const options = this.getNodeParameter('options', i) as IDataObject;
 						const qs: IDataObject = {};
 
@@ -305,7 +467,7 @@ export class PlanningCenterCheckIns implements INodeType {
 						const response = await planningCenterApiRequest.call(
 							this,
 							'GET',
-							`/check-ins/v2/events/${eventId}`,
+							`/groups/v2/events/${eventId}`,
 							{},
 							qs,
 						);
@@ -319,16 +481,20 @@ export class PlanningCenterCheckIns implements INodeType {
 
 					// Get many events
 					if (operation === 'getMany') {
+						const groupId = this.getNodeParameter('groupId', i, '', { extractValue: true }) as string;
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						const filters = this.getNodeParameter('filters', i) as IDataObject;
 						const options = this.getNodeParameter('options', i) as IDataObject;
 						const qs: IDataObject = {};
 
-						if (filters.name) {
-							qs['where[name]'] = filters.name;
+						if (filters.startsAfter) {
+							qs['where[starts_at][gte]'] = filters.startsAfter;
 						}
-						if (filters.filter) {
-							qs.filter = filters.filter;
+						if (filters.startsBefore) {
+							qs['where[starts_at][lte]'] = filters.startsBefore;
+						}
+						if (filters.upcoming) {
+							qs.filter = 'upcoming';
 						}
 						if (options.include) {
 							qs.include = (options.include as string[]).join(',');
@@ -341,7 +507,7 @@ export class PlanningCenterCheckIns implements INodeType {
 							const allData = await planningCenterApiRequestAllItems.call(
 								this,
 								'GET',
-								'/check-ins/v2/events',
+								`/groups/v2/groups/${groupId}/events`,
 								{},
 								qs,
 							);
@@ -355,82 +521,7 @@ export class PlanningCenterCheckIns implements INodeType {
 							const response = await planningCenterApiRequest.call(
 								this,
 								'GET',
-								'/check-ins/v2/events',
-								{},
-								qs,
-							);
-
-							responseData = parseJsonApiResponse(response) as IDataObject[];
-						}
-					}
-				}
-
-				// ==========================================
-				// Check-In Location resource
-				// ==========================================
-				if (resource === 'checkInLocation') {
-					// Get a location
-					if (operation === 'get') {
-						const locationId = this.getNodeParameter('locationId', i) as string;
-						const options = this.getNodeParameter('options', i) as IDataObject;
-						const qs: IDataObject = {};
-
-						if (options.include) {
-							qs.include = (options.include as string[]).join(',');
-						}
-
-						const response = await planningCenterApiRequest.call(
-							this,
-							'GET',
-							`/check-ins/v2/locations/${locationId}`,
-							{},
-							qs,
-						);
-
-						responseData = parseJsonApiResponse(response);
-						if (options.include && response.included) {
-							const includesMap = parseJsonApiIncludes(response);
-							(responseData as IDataObject).included = Object.fromEntries(includesMap);
-						}
-					}
-
-					// Get many locations
-					if (operation === 'getMany') {
-						const eventId = this.getNodeParameter('eventId', i, '', { extractValue: true }) as string;
-						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-						const filters = this.getNodeParameter('filters', i) as IDataObject;
-						const options = this.getNodeParameter('options', i) as IDataObject;
-						const qs: IDataObject = {};
-
-						if (filters.filter) {
-							qs.filter = filters.filter;
-						}
-						if (options.include) {
-							qs.include = (options.include as string[]).join(',');
-						}
-						if (options.order) {
-							qs.order = options.order;
-						}
-
-						if (returnAll) {
-							const allData = await planningCenterApiRequestAllItems.call(
-								this,
-								'GET',
-								`/check-ins/v2/events/${eventId}/locations`,
-								{},
-								qs,
-							);
-							responseData = allData.map((item) =>
-								parseJsonApiResponse({ data: item }),
-							) as IDataObject[];
-						} else {
-							const limit = this.getNodeParameter('limit', i) as number;
-							qs.per_page = limit;
-
-							const response = await planningCenterApiRequest.call(
-								this,
-								'GET',
-								`/check-ins/v2/events/${eventId}/locations`,
+								`/groups/v2/groups/${groupId}/events`,
 								{},
 								qs,
 							);

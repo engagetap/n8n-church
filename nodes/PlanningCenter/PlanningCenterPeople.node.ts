@@ -1,7 +1,10 @@
 import type {
 	IDataObject,
 	IExecuteFunctions,
+	ILoadOptionsFunctions,
 	INodeExecutionData,
+	INodeListSearchItems,
+	INodeListSearchResult,
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
@@ -133,6 +136,264 @@ export class PlanningCenterPeople implements INodeType {
 			...workflowStepOperations,
 			...workflowStepFields,
 		],
+	};
+
+	methods = {
+		listSearch: {
+			async searchPeople(
+				this: ILoadOptionsFunctions,
+				filter?: string,
+			): Promise<INodeListSearchResult> {
+				const qs: IDataObject = { per_page: 25 };
+				if (filter) {
+					qs['where[search_name]'] = filter;
+				}
+
+				const authentication = this.getNodeParameter('authentication', 0) as string;
+				let response;
+
+				if (authentication === 'oAuth2') {
+					response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'planningCenterOAuth2Api',
+						{
+							method: 'GET',
+							url: 'https://api.planningcenteronline.com/people/v2/people',
+							qs,
+							json: true,
+						},
+					);
+				} else {
+					const credentials = await this.getCredentials('planningCenterApi');
+					response = await this.helpers.httpRequest({
+						method: 'GET',
+						url: 'https://api.planningcenteronline.com/people/v2/people',
+						qs,
+						auth: {
+							username: credentials.applicationId as string,
+							password: credentials.secret as string,
+						},
+						json: true,
+					});
+				}
+
+				const results: INodeListSearchItems[] = (response.data || []).map(
+					(person: IDataObject) => {
+						const attrs = person.attributes as IDataObject;
+
+						// Build info parts to append to name
+						const infoParts: string[] = [];
+
+						// Calculate age from birthdate
+						if (attrs.birthdate) {
+							const birthDate = new Date(attrs.birthdate as string);
+							const today = new Date();
+							let age = today.getFullYear() - birthDate.getFullYear();
+							const monthDiff = today.getMonth() - birthDate.getMonth();
+							if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+								age--;
+							}
+							infoParts.push(`${age}`);
+						}
+
+						// Add membership status
+						if (attrs.membership) {
+							infoParts.push(attrs.membership as string);
+						} else if (attrs.status) {
+							infoParts.push(attrs.status as string);
+						}
+
+						// Add child indicator
+						if (attrs.child) {
+							infoParts.push('Child');
+						}
+
+						// Format name with info in parentheses
+						const fullName = `${attrs.first_name} ${attrs.last_name}`;
+						const displayName = infoParts.length > 0
+							? `${fullName} (${infoParts.join(', ')})`
+							: fullName;
+
+						return {
+							name: displayName,
+							value: person.id as string,
+							url: `https://people.planningcenteronline.com/people/${person.id}`,
+						};
+					},
+				);
+
+				return { results };
+			},
+
+			async searchWorkflows(
+				this: ILoadOptionsFunctions,
+				filter?: string,
+			): Promise<INodeListSearchResult> {
+				const qs: IDataObject = { per_page: 25 };
+				if (filter) {
+					qs['where[name]'] = filter;
+				}
+
+				const authentication = this.getNodeParameter('authentication', 0) as string;
+				let response;
+
+				if (authentication === 'oAuth2') {
+					response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'planningCenterOAuth2Api',
+						{
+							method: 'GET',
+							url: 'https://api.planningcenteronline.com/people/v2/workflows',
+							qs,
+							json: true,
+						},
+					);
+				} else {
+					const credentials = await this.getCredentials('planningCenterApi');
+					response = await this.helpers.httpRequest({
+						method: 'GET',
+						url: 'https://api.planningcenteronline.com/people/v2/workflows',
+						qs,
+						auth: {
+							username: credentials.applicationId as string,
+							password: credentials.secret as string,
+						},
+						json: true,
+					});
+				}
+
+				const results: INodeListSearchItems[] = (response.data || []).map(
+					(workflow: IDataObject) => {
+						const attrs = workflow.attributes as IDataObject;
+
+						// Build info parts for workflow
+						const infoParts: string[] = [];
+
+						if (attrs.ready_cards_count !== undefined) {
+							infoParts.push(`${attrs.ready_cards_count} ready`);
+						}
+						if (attrs.snoozed_cards_count !== undefined && (attrs.snoozed_cards_count as number) > 0) {
+							infoParts.push(`${attrs.snoozed_cards_count} snoozed`);
+						}
+
+						// Format name with info in parentheses
+						const workflowName = attrs.name as string;
+						const displayName = infoParts.length > 0
+							? `${workflowName} (${infoParts.join(', ')})`
+							: workflowName;
+
+						return {
+							name: displayName,
+							value: workflow.id as string,
+						};
+					},
+				);
+
+				return { results };
+			},
+
+			async searchLists(
+				this: ILoadOptionsFunctions,
+				filter?: string,
+			): Promise<INodeListSearchResult> {
+				const qs: IDataObject = { per_page: 25 };
+				if (filter) {
+					qs['where[name]'] = filter;
+				}
+
+				const authentication = this.getNodeParameter('authentication', 0) as string;
+				let response;
+
+				if (authentication === 'oAuth2') {
+					response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'planningCenterOAuth2Api',
+						{
+							method: 'GET',
+							url: 'https://api.planningcenteronline.com/people/v2/lists',
+							qs,
+							json: true,
+						},
+					);
+				} else {
+					const credentials = await this.getCredentials('planningCenterApi');
+					response = await this.helpers.httpRequest({
+						method: 'GET',
+						url: 'https://api.planningcenteronline.com/people/v2/lists',
+						qs,
+						auth: {
+							username: credentials.applicationId as string,
+							password: credentials.secret as string,
+						},
+						json: true,
+					});
+				}
+
+				const results: INodeListSearchItems[] = (response.data || []).map(
+					(list: IDataObject) => {
+						const attrs = list.attributes as IDataObject;
+						return {
+							name: attrs.name as string,
+							value: list.id as string,
+							description: attrs.description as string || '',
+						};
+					},
+				);
+
+				return { results };
+			},
+
+			async searchForms(
+				this: ILoadOptionsFunctions,
+				filter?: string,
+			): Promise<INodeListSearchResult> {
+				const qs: IDataObject = { per_page: 25 };
+				if (filter) {
+					qs['where[name]'] = filter;
+				}
+
+				const authentication = this.getNodeParameter('authentication', 0) as string;
+				let response;
+
+				if (authentication === 'oAuth2') {
+					response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'planningCenterOAuth2Api',
+						{
+							method: 'GET',
+							url: 'https://api.planningcenteronline.com/people/v2/forms',
+							qs,
+							json: true,
+						},
+					);
+				} else {
+					const credentials = await this.getCredentials('planningCenterApi');
+					response = await this.helpers.httpRequest({
+						method: 'GET',
+						url: 'https://api.planningcenteronline.com/people/v2/forms',
+						qs,
+						auth: {
+							username: credentials.applicationId as string,
+							password: credentials.secret as string,
+						},
+						json: true,
+					});
+				}
+
+				const results: INodeListSearchItems[] = (response.data || []).map(
+					(form: IDataObject) => {
+						const attrs = form.attributes as IDataObject;
+						return {
+							name: attrs.name as string,
+							value: form.id as string,
+							description: attrs.description as string || '',
+						};
+					},
+				);
+
+				return { results };
+			},
+		},
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
@@ -529,7 +790,7 @@ export class PlanningCenterPeople implements INodeType {
 
 					// Get a person
 					if (operation === 'get') {
-						const personId = this.getNodeParameter('personId', i) as string;
+						const personId = this.getNodeParameter('personId', i, '', { extractValue: true }) as string;
 						const options = this.getNodeParameter('options', i) as IDataObject;
 						const qs: IDataObject = {};
 
@@ -691,7 +952,7 @@ export class PlanningCenterPeople implements INodeType {
 				if (resource === 'workflow') {
 					// Get a workflow
 					if (operation === 'get') {
-						const workflowId = this.getNodeParameter('workflowId', i) as string;
+						const workflowId = this.getNodeParameter('workflowId', i, '', { extractValue: true }) as string;
 						const options = this.getNodeParameter('options', i) as IDataObject;
 						const qs: IDataObject = {};
 
@@ -754,7 +1015,7 @@ export class PlanningCenterPeople implements INodeType {
 
 					// Get people in workflow with phone numbers
 					if (operation === 'getPeople') {
-						const workflowId = this.getNodeParameter('workflowId', i) as string;
+						const workflowId = this.getNodeParameter('workflowId', i, '', { extractValue: true }) as string;
 						const filters = this.getNodeParameter('filters', i) as IDataObject;
 						const qs: IDataObject = {};
 

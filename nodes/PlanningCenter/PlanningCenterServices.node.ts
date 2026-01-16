@@ -1,7 +1,10 @@
 import type {
 	IDataObject,
 	IExecuteFunctions,
+	ILoadOptionsFunctions,
 	INodeExecutionData,
+	INodeListSearchItems,
+	INodeListSearchResult,
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
@@ -106,6 +109,79 @@ export class PlanningCenterServices implements INodeType {
 		],
 	};
 
+	methods = {
+		listSearch: {
+			async searchServiceTypes(
+				this: ILoadOptionsFunctions,
+				filter?: string,
+			): Promise<INodeListSearchResult> {
+				const qs: IDataObject = { per_page: 25 };
+				if (filter) {
+					qs['where[name]'] = filter;
+				}
+
+				const authentication = this.getNodeParameter('authentication', 0) as string;
+				let response;
+
+				if (authentication === 'oAuth2') {
+					response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'planningCenterOAuth2Api',
+						{
+							method: 'GET',
+							url: 'https://api.planningcenteronline.com/services/v2/service_types',
+							qs,
+							json: true,
+						},
+					);
+				} else {
+					const credentials = await this.getCredentials('planningCenterApi');
+					response = await this.helpers.httpRequest({
+						method: 'GET',
+						url: 'https://api.planningcenteronline.com/services/v2/service_types',
+						qs,
+						auth: {
+							username: credentials.applicationId as string,
+							password: credentials.secret as string,
+						},
+						json: true,
+					});
+				}
+
+				const results: INodeListSearchItems[] = (response.data || []).map(
+					(serviceType: IDataObject) => {
+						const attrs = serviceType.attributes as IDataObject;
+
+						// Build info parts for display in name
+						const infoParts: string[] = [];
+
+						if (attrs.frequency) {
+							infoParts.push(attrs.frequency as string);
+						}
+
+						if (attrs.last_plan_from) {
+							const lastPlanDate = new Date(attrs.last_plan_from as string);
+							infoParts.push(`Last: ${lastPlanDate.toLocaleDateString()}`);
+						}
+
+						// Format name with info in parentheses
+						const typeName = attrs.name as string;
+						const displayName = infoParts.length > 0
+							? `${typeName} (${infoParts.join(', ')})`
+							: typeName;
+
+						return {
+							name: displayName,
+							value: serviceType.id as string,
+						};
+					},
+				);
+
+				return { results };
+			},
+		},
+	};
+
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
@@ -123,7 +199,7 @@ export class PlanningCenterServices implements INodeType {
 				if (resource === 'serviceType') {
 					// Get a service type
 					if (operation === 'get') {
-						const serviceTypeId = this.getNodeParameter('serviceTypeId', i) as string;
+						const serviceTypeId = this.getNodeParameter('serviceTypeId', i, '', { extractValue: true }) as string;
 
 						const response = await planningCenterApiRequest.call(
 							this,
@@ -178,7 +254,7 @@ export class PlanningCenterServices implements INodeType {
 				if (resource === 'plan') {
 					// Get a plan
 					if (operation === 'get') {
-						const serviceTypeId = this.getNodeParameter('serviceTypeId', i) as string;
+						const serviceTypeId = this.getNodeParameter('serviceTypeId', i, '', { extractValue: true }) as string;
 						const planId = this.getNodeParameter('planId', i) as string;
 						const options = this.getNodeParameter('options', i) as IDataObject;
 						const qs: IDataObject = {};
@@ -200,7 +276,7 @@ export class PlanningCenterServices implements INodeType {
 
 					// Get many plans
 					if (operation === 'getMany') {
-						const serviceTypeId = this.getNodeParameter('serviceTypeId', i) as string;
+						const serviceTypeId = this.getNodeParameter('serviceTypeId', i, '', { extractValue: true }) as string;
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						const filters = this.getNodeParameter('filters', i) as IDataObject;
 						const options = this.getNodeParameter('options', i) as IDataObject;
@@ -292,7 +368,7 @@ export class PlanningCenterServices implements INodeType {
 				if (resource === 'teamMember') {
 					// Get many team members for a plan
 					if (operation === 'getMany') {
-						const serviceTypeId = this.getNodeParameter('serviceTypeId', i) as string;
+						const serviceTypeId = this.getNodeParameter('serviceTypeId', i, '', { extractValue: true }) as string;
 						const planId = this.getNodeParameter('planId', i) as string;
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						const filters = this.getNodeParameter('filters', i) as IDataObject;

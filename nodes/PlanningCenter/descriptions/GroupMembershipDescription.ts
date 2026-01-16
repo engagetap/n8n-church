@@ -1,6 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-export const checkInEventOperations: INodeProperties[] = [
+export const groupMembershipOperations: INodeProperties[] = [
 	{
 		displayName: 'Operation',
 		name: 'operation',
@@ -8,41 +8,35 @@ export const checkInEventOperations: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['groupMembership'],
 			},
 		},
 		options: [
 			{
-				name: 'Get',
-				value: 'get',
-				description: 'Get an event by ID',
-				action: 'Get an event',
-			},
-			{
 				name: 'Get Many',
 				value: 'getMany',
-				description: 'Get many events',
-				action: 'Get many events',
+				description: 'Get many memberships for a group',
+				action: 'Get many memberships',
 			},
 		],
 		default: 'getMany',
 	},
 ];
 
-export const checkInEventFields: INodeProperties[] = [
+export const groupMembershipFields: INodeProperties[] = [
 	// ----------------------------------
-	//         checkInEvent:get
+	//         groupMembership:getMany
 	// ----------------------------------
 	{
-		displayName: 'Event',
-		name: 'eventId',
+		displayName: 'Group',
+		name: 'groupId',
 		type: 'resourceLocator',
 		default: { mode: 'list', value: '' },
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
-				operation: ['get'],
+				resource: ['groupMembership'],
+				operation: ['getMany'],
 			},
 		},
 		modes: [
@@ -51,7 +45,7 @@ export const checkInEventFields: INodeProperties[] = [
 				name: 'list',
 				type: 'list',
 				typeOptions: {
-					searchListMethod: 'searchCheckInEvents',
+					searchListMethod: 'searchGroups',
 					searchable: true,
 				},
 			},
@@ -62,12 +56,8 @@ export const checkInEventFields: INodeProperties[] = [
 				placeholder: '12345678',
 			},
 		],
-		description: 'The event to retrieve',
+		description: 'The group to get memberships for',
 	},
-
-	// ----------------------------------
-	//         checkInEvent:getMany
-	// ----------------------------------
 	{
 		displayName: 'Return All',
 		name: 'returnAll',
@@ -75,7 +65,7 @@ export const checkInEventFields: INodeProperties[] = [
 		default: false,
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['groupMembership'],
 				operation: ['getMany'],
 			},
 		},
@@ -92,7 +82,7 @@ export const checkInEventFields: INodeProperties[] = [
 		},
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['groupMembership'],
 				operation: ['getMany'],
 				returnAll: [false],
 			},
@@ -101,7 +91,7 @@ export const checkInEventFields: INodeProperties[] = [
 	},
 
 	// ----------------------------------
-	//         checkInEvent:filters
+	//         groupMembership:filters
 	// ----------------------------------
 	{
 		displayName: 'Filters',
@@ -111,47 +101,40 @@ export const checkInEventFields: INodeProperties[] = [
 		default: {},
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['groupMembership'],
 				operation: ['getMany'],
 			},
 		},
 		options: [
 			{
-				displayName: 'Name',
-				name: 'name',
-				type: 'string',
-				default: '',
-				description: 'Filter events by name',
-			},
-			{
-				displayName: 'Filter Type',
-				name: 'filter',
+				displayName: 'Role',
+				name: 'role',
 				type: 'options',
 				default: '',
 				options: [
 					{
 						name: 'All',
 						value: '',
-						description: 'All events',
+						description: 'All roles',
 					},
 					{
-						name: 'Archived',
-						value: 'archived',
-						description: 'Only archived events',
+						name: 'Leader',
+						value: 'leader',
+						description: 'Only leaders',
 					},
 					{
-						name: 'Not Archived',
-						value: 'not_archived',
-						description: 'Only active (non-archived) events',
+						name: 'Member',
+						value: 'member',
+						description: 'Only members',
 					},
 				],
-				description: 'Filter events by archive status',
+				description: 'Filter memberships by role',
 			},
 		],
 	},
 
 	// ----------------------------------
-	//         checkInEvent:options
+	//         groupMembership:options
 	// ----------------------------------
 	{
 		displayName: 'Options',
@@ -161,8 +144,8 @@ export const checkInEventFields: INodeProperties[] = [
 		default: {},
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
-				operation: ['get', 'getMany'],
+				resource: ['groupMembership'],
+				operation: ['getMany'],
 			},
 		},
 		options: [
@@ -173,20 +156,8 @@ export const checkInEventFields: INodeProperties[] = [
 				default: [],
 				options: [
 					{
-						name: 'Attendance Types',
-						value: 'attendance_types',
-					},
-					{
-						name: 'Event Periods',
-						value: 'event_periods',
-					},
-					{
-						name: 'Event Times',
-						value: 'event_times',
-					},
-					{
-						name: 'Locations',
-						value: 'locations',
+						name: 'Person',
+						value: 'person',
 					},
 				],
 				description: 'Related resources to include in the response',
@@ -195,23 +166,31 @@ export const checkInEventFields: INodeProperties[] = [
 				displayName: 'Order',
 				name: 'order',
 				type: 'options',
-				default: '-created_at',
+				default: 'first_name',
 				options: [
 					{
-						name: 'Created At (Newest First)',
-						value: '-created_at',
+						name: 'First Name (A-Z)',
+						value: 'first_name',
 					},
 					{
-						name: 'Created At (Oldest First)',
-						value: 'created_at',
+						name: 'First Name (Z-A)',
+						value: '-first_name',
 					},
 					{
-						name: 'Name (A-Z)',
-						value: 'name',
+						name: 'Last Name (A-Z)',
+						value: 'last_name',
 					},
 					{
-						name: 'Name (Z-A)',
-						value: '-name',
+						name: 'Last Name (Z-A)',
+						value: '-last_name',
+					},
+					{
+						name: 'Joined At (Newest First)',
+						value: '-joined_at',
+					},
+					{
+						name: 'Joined At (Oldest First)',
+						value: 'joined_at',
 					},
 				],
 				description: 'How to order the results',

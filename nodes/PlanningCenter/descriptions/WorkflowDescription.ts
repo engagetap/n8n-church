@@ -40,18 +40,35 @@ export const workflowFields: INodeProperties[] = [
 	//         workflow:get
 	// ----------------------------------
 	{
-		displayName: 'Workflow ID',
+		displayName: 'Workflow',
 		name: 'workflowId',
-		type: 'string',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		required: true,
-		default: '',
 		displayOptions: {
 			show: {
 				resource: ['workflow'],
 				operation: ['get'],
 			},
 		},
-		description: 'The ID of the workflow to retrieve',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'searchWorkflows',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: '12345678',
+			},
+		],
+		description: 'The workflow to retrieve',
 	},
 	{
 		displayName: 'Options',
@@ -171,18 +188,35 @@ export const workflowFields: INodeProperties[] = [
 	//         workflow:getPeople
 	// ----------------------------------
 	{
-		displayName: 'Workflow ID',
+		displayName: 'Workflow',
 		name: 'workflowId',
-		type: 'string',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		required: true,
-		default: '',
 		displayOptions: {
 			show: {
 				resource: ['workflow'],
 				operation: ['getPeople'],
 			},
 		},
-		description: 'The ID of the workflow to get people from',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'searchWorkflows',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: '12345678',
+			},
+		],
+		description: 'The workflow to get people from',
 	},
 	{
 		displayName: 'Filters',

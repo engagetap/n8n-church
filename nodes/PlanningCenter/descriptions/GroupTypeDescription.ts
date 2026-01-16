@@ -1,6 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-export const checkInEventOperations: INodeProperties[] = [
+export const groupTypeOperations: INodeProperties[] = [
 	{
 		displayName: 'Operation',
 		name: 'operation',
@@ -8,40 +8,40 @@ export const checkInEventOperations: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['groupType'],
 			},
 		},
 		options: [
 			{
 				name: 'Get',
 				value: 'get',
-				description: 'Get an event by ID',
-				action: 'Get an event',
+				description: 'Get a group type by ID',
+				action: 'Get a group type',
 			},
 			{
 				name: 'Get Many',
 				value: 'getMany',
-				description: 'Get many events',
-				action: 'Get many events',
+				description: 'Get many group types',
+				action: 'Get many group types',
 			},
 		],
 		default: 'getMany',
 	},
 ];
 
-export const checkInEventFields: INodeProperties[] = [
+export const groupTypeFields: INodeProperties[] = [
 	// ----------------------------------
-	//         checkInEvent:get
+	//         groupType:get
 	// ----------------------------------
 	{
-		displayName: 'Event',
-		name: 'eventId',
+		displayName: 'Group Type',
+		name: 'groupTypeId',
 		type: 'resourceLocator',
 		default: { mode: 'list', value: '' },
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['groupType'],
 				operation: ['get'],
 			},
 		},
@@ -51,7 +51,7 @@ export const checkInEventFields: INodeProperties[] = [
 				name: 'list',
 				type: 'list',
 				typeOptions: {
-					searchListMethod: 'searchCheckInEvents',
+					searchListMethod: 'searchGroupTypes',
 					searchable: true,
 				},
 			},
@@ -62,11 +62,11 @@ export const checkInEventFields: INodeProperties[] = [
 				placeholder: '12345678',
 			},
 		],
-		description: 'The event to retrieve',
+		description: 'The group type to retrieve',
 	},
 
 	// ----------------------------------
-	//         checkInEvent:getMany
+	//         groupType:getMany
 	// ----------------------------------
 	{
 		displayName: 'Return All',
@@ -75,7 +75,7 @@ export const checkInEventFields: INodeProperties[] = [
 		default: false,
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['groupType'],
 				operation: ['getMany'],
 			},
 		},
@@ -92,7 +92,7 @@ export const checkInEventFields: INodeProperties[] = [
 		},
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['groupType'],
 				operation: ['getMany'],
 				returnAll: [false],
 			},
@@ -101,57 +101,7 @@ export const checkInEventFields: INodeProperties[] = [
 	},
 
 	// ----------------------------------
-	//         checkInEvent:filters
-	// ----------------------------------
-	{
-		displayName: 'Filters',
-		name: 'filters',
-		type: 'collection',
-		placeholder: 'Add Filter',
-		default: {},
-		displayOptions: {
-			show: {
-				resource: ['checkInEvent'],
-				operation: ['getMany'],
-			},
-		},
-		options: [
-			{
-				displayName: 'Name',
-				name: 'name',
-				type: 'string',
-				default: '',
-				description: 'Filter events by name',
-			},
-			{
-				displayName: 'Filter Type',
-				name: 'filter',
-				type: 'options',
-				default: '',
-				options: [
-					{
-						name: 'All',
-						value: '',
-						description: 'All events',
-					},
-					{
-						name: 'Archived',
-						value: 'archived',
-						description: 'Only archived events',
-					},
-					{
-						name: 'Not Archived',
-						value: 'not_archived',
-						description: 'Only active (non-archived) events',
-					},
-				],
-				description: 'Filter events by archive status',
-			},
-		],
-	},
-
-	// ----------------------------------
-	//         checkInEvent:options
+	//         groupType:options
 	// ----------------------------------
 	{
 		displayName: 'Options',
@@ -161,41 +111,16 @@ export const checkInEventFields: INodeProperties[] = [
 		default: {},
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['groupType'],
 				operation: ['get', 'getMany'],
 			},
 		},
 		options: [
 			{
-				displayName: 'Include',
-				name: 'include',
-				type: 'multiOptions',
-				default: [],
-				options: [
-					{
-						name: 'Attendance Types',
-						value: 'attendance_types',
-					},
-					{
-						name: 'Event Periods',
-						value: 'event_periods',
-					},
-					{
-						name: 'Event Times',
-						value: 'event_times',
-					},
-					{
-						name: 'Locations',
-						value: 'locations',
-					},
-				],
-				description: 'Related resources to include in the response',
-			},
-			{
 				displayName: 'Order',
 				name: 'order',
 				type: 'options',
-				default: '-created_at',
+				default: 'name',
 				options: [
 					{
 						name: 'Created At (Newest First)',

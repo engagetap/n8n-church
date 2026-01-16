@@ -49,6 +49,7 @@
 			"dist/nodes/PlanningCenter/PlanningCenterPeople.node.js",
 			"dist/nodes/PlanningCenter/PlanningCenterServices.node.js",
 			"dist/nodes/PlanningCenter/PlanningCenterCheckIns.node.js",
+			"dist/nodes/PlanningCenter/PlanningCenterGroups.node.js",
 			"dist/nodes/PlanningCenter/PlanningCenterTrigger.node.js",
 			"dist/nodes/Clearstream/Clearstream.node.js",
 			"dist/nodes/Clearstream/ClearstreamTrigger.node.js"

@@ -202,18 +202,45 @@ export const personFields: INodeProperties[] = [
 	//         person:get
 	// ----------------------------------
 	{
-		displayName: 'Person ID',
+		displayName: 'Person',
 		name: 'personId',
-		type: 'string',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		required: true,
-		default: '',
 		displayOptions: {
 			show: {
 				resource: ['person'],
 				operation: ['get'],
 			},
 		},
-		description: 'The ID of the person to retrieve',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'searchPeople',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: '12345678',
+			},
+			{
+				displayName: 'By URL',
+				name: 'url',
+				type: 'string',
+				placeholder: 'https://people.planningcenteronline.com/people/AC12345678',
+				extractValue: {
+					type: 'regex',
+					regex: 'people\\.planningcenteronline\\.com\\/people\\/(?:AC)?([0-9]+)',
+				},
+			},
+		],
+		description: 'The person to retrieve',
 	},
 	{
 		displayName: 'Options',

@@ -1,6 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-export const checkInEventOperations: INodeProperties[] = [
+export const groupEventOperations: INodeProperties[] = [
 	{
 		displayName: 'Operation',
 		name: 'operation',
@@ -8,7 +8,7 @@ export const checkInEventOperations: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['groupEvent'],
 			},
 		},
 		options: [
@@ -21,7 +21,7 @@ export const checkInEventOperations: INodeProperties[] = [
 			{
 				name: 'Get Many',
 				value: 'getMany',
-				description: 'Get many events',
+				description: 'Get many events for a group',
 				action: 'Get many events',
 			},
 		],
@@ -29,20 +29,38 @@ export const checkInEventOperations: INodeProperties[] = [
 	},
 ];
 
-export const checkInEventFields: INodeProperties[] = [
+export const groupEventFields: INodeProperties[] = [
 	// ----------------------------------
-	//         checkInEvent:get
+	//         groupEvent:get
 	// ----------------------------------
 	{
-		displayName: 'Event',
+		displayName: 'Event ID',
 		name: 'eventId',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['groupEvent'],
+				operation: ['get'],
+			},
+		},
+		description: 'The ID of the event to retrieve',
+	},
+
+	// ----------------------------------
+	//         groupEvent:getMany
+	// ----------------------------------
+	{
+		displayName: 'Group',
+		name: 'groupId',
 		type: 'resourceLocator',
 		default: { mode: 'list', value: '' },
 		required: true,
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
-				operation: ['get'],
+				resource: ['groupEvent'],
+				operation: ['getMany'],
 			},
 		},
 		modes: [
@@ -51,7 +69,7 @@ export const checkInEventFields: INodeProperties[] = [
 				name: 'list',
 				type: 'list',
 				typeOptions: {
-					searchListMethod: 'searchCheckInEvents',
+					searchListMethod: 'searchGroups',
 					searchable: true,
 				},
 			},
@@ -62,12 +80,8 @@ export const checkInEventFields: INodeProperties[] = [
 				placeholder: '12345678',
 			},
 		],
-		description: 'The event to retrieve',
+		description: 'The group to get events for',
 	},
-
-	// ----------------------------------
-	//         checkInEvent:getMany
-	// ----------------------------------
 	{
 		displayName: 'Return All',
 		name: 'returnAll',
@@ -75,7 +89,7 @@ export const checkInEventFields: INodeProperties[] = [
 		default: false,
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['groupEvent'],
 				operation: ['getMany'],
 			},
 		},
@@ -92,7 +106,7 @@ export const checkInEventFields: INodeProperties[] = [
 		},
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['groupEvent'],
 				operation: ['getMany'],
 				returnAll: [false],
 			},
@@ -101,7 +115,7 @@ export const checkInEventFields: INodeProperties[] = [
 	},
 
 	// ----------------------------------
-	//         checkInEvent:filters
+	//         groupEvent:filters
 	// ----------------------------------
 	{
 		displayName: 'Filters',
@@ -111,47 +125,37 @@ export const checkInEventFields: INodeProperties[] = [
 		default: {},
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['groupEvent'],
 				operation: ['getMany'],
 			},
 		},
 		options: [
 			{
-				displayName: 'Name',
-				name: 'name',
-				type: 'string',
+				displayName: 'Starts After',
+				name: 'startsAfter',
+				type: 'dateTime',
 				default: '',
-				description: 'Filter events by name',
+				description: 'Filter events starting after this date/time',
 			},
 			{
-				displayName: 'Filter Type',
-				name: 'filter',
-				type: 'options',
+				displayName: 'Starts Before',
+				name: 'startsBefore',
+				type: 'dateTime',
 				default: '',
-				options: [
-					{
-						name: 'All',
-						value: '',
-						description: 'All events',
-					},
-					{
-						name: 'Archived',
-						value: 'archived',
-						description: 'Only archived events',
-					},
-					{
-						name: 'Not Archived',
-						value: 'not_archived',
-						description: 'Only active (non-archived) events',
-					},
-				],
-				description: 'Filter events by archive status',
+				description: 'Filter events starting before this date/time',
+			},
+			{
+				displayName: 'Upcoming Only',
+				name: 'upcoming',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to only show upcoming events',
 			},
 		],
 	},
 
 	// ----------------------------------
-	//         checkInEvent:options
+	//         groupEvent:options
 	// ----------------------------------
 	{
 		displayName: 'Options',
@@ -161,7 +165,7 @@ export const checkInEventFields: INodeProperties[] = [
 		default: {},
 		displayOptions: {
 			show: {
-				resource: ['checkInEvent'],
+				resource: ['groupEvent'],
 				operation: ['get', 'getMany'],
 			},
 		},
@@ -173,20 +177,12 @@ export const checkInEventFields: INodeProperties[] = [
 				default: [],
 				options: [
 					{
-						name: 'Attendance Types',
-						value: 'attendance_types',
+						name: 'Group',
+						value: 'group',
 					},
 					{
-						name: 'Event Periods',
-						value: 'event_periods',
-					},
-					{
-						name: 'Event Times',
-						value: 'event_times',
-					},
-					{
-						name: 'Locations',
-						value: 'locations',
+						name: 'Location',
+						value: 'location',
 					},
 				],
 				description: 'Related resources to include in the response',
@@ -195,15 +191,15 @@ export const checkInEventFields: INodeProperties[] = [
 				displayName: 'Order',
 				name: 'order',
 				type: 'options',
-				default: '-created_at',
+				default: 'starts_at',
 				options: [
 					{
-						name: 'Created At (Newest First)',
-						value: '-created_at',
+						name: 'Starts At (Newest First)',
+						value: '-starts_at',
 					},
 					{
-						name: 'Created At (Oldest First)',
-						value: 'created_at',
+						name: 'Starts At (Oldest First)',
+						value: 'starts_at',
 					},
 					{
 						name: 'Name (A-Z)',

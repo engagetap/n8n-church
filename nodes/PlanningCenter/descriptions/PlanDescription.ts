@@ -34,18 +34,35 @@ export const planFields: INodeProperties[] = [
 	//         plan:get
 	// ----------------------------------
 	{
-		displayName: 'Service Type ID',
+		displayName: 'Service Type',
 		name: 'serviceTypeId',
-		type: 'string',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		required: true,
-		default: '',
 		displayOptions: {
 			show: {
 				resource: ['plan'],
 				operation: ['get'],
 			},
 		},
-		description: 'The ID of the service type this plan belongs to',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'searchServiceTypes',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: '12345678',
+			},
+		],
+		description: 'The service type this plan belongs to',
 	},
 	{
 		displayName: 'Plan ID',
@@ -94,18 +111,35 @@ export const planFields: INodeProperties[] = [
 	//         plan:getMany
 	// ----------------------------------
 	{
-		displayName: 'Service Type ID',
+		displayName: 'Service Type',
 		name: 'serviceTypeId',
-		type: 'string',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
 		required: true,
-		default: '',
 		displayOptions: {
 			show: {
 				resource: ['plan'],
 				operation: ['getMany'],
 			},
 		},
-		description: 'The ID of the service type to get plans for',
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'searchServiceTypes',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: '12345678',
+			},
+		],
+		description: 'The service type to get plans for',
 	},
 	{
 		displayName: 'Return All',
