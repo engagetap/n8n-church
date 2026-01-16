@@ -48,12 +48,6 @@ export const threadOperations: INodeProperties[] = [
 				description: 'Send a reply in a thread',
 				action: 'Send reply to thread',
 			},
-			{
-				name: 'Store Thread Data',
-				value: 'storeThreadData',
-				description: 'Prepare thread data for Data Table storage (Clearstream + Planning Center)',
-				action: 'Store thread data',
-			},
 		],
 		default: 'getMany',
 	},
@@ -317,94 +311,5 @@ export const threadFields: INodeProperties[] = [
 		},
 		default: 50,
 		description: 'Max number of results to return',
-	},
-
-	// ----------------------------------
-	//         thread:storeThreadData
-	// ----------------------------------
-	{
-		displayName: 'Thread ID',
-		name: 'threadId',
-		type: 'string',
-		required: true,
-		default: '',
-		displayOptions: {
-			show: {
-				resource: ['thread'],
-				operation: ['storeThreadData'],
-			},
-		},
-		description: 'The Clearstream thread ID',
-	},
-	{
-		displayName: 'Person ID',
-		name: 'personId',
-		type: 'string',
-		required: true,
-		default: '',
-		displayOptions: {
-			show: {
-				resource: ['thread'],
-				operation: ['storeThreadData'],
-			},
-		},
-		description: 'The Planning Center person ID',
-	},
-	{
-		displayName: 'Card ID',
-		name: 'cardId',
-		type: 'string',
-		required: true,
-		default: '',
-		displayOptions: {
-			show: {
-				resource: ['thread'],
-				operation: ['storeThreadData'],
-			},
-		},
-		description: 'The Planning Center workflow card ID',
-	},
-	{
-		displayName: 'Workflow ID',
-		name: 'workflowId',
-		type: 'string',
-		required: true,
-		default: '',
-		displayOptions: {
-			show: {
-				resource: ['thread'],
-				operation: ['storeThreadData'],
-			},
-		},
-		description: 'The Planning Center workflow ID',
-	},
-	{
-		displayName: 'Additional Fields',
-		name: 'additionalFields',
-		type: 'collection',
-		placeholder: 'Add Field',
-		default: {},
-		displayOptions: {
-			show: {
-				resource: ['thread'],
-				operation: ['storeThreadData'],
-			},
-		},
-		options: [
-			{
-				displayName: 'Question Type',
-				name: 'questionType',
-				type: 'string',
-				default: '',
-				description: 'Label for the type of question asked (e.g., "volunteer", "membership")',
-			},
-			{
-				displayName: 'Phone Number',
-				name: 'phoneNumber',
-				type: 'string',
-				default: '',
-				description: 'The subscriber phone number',
-			},
-		],
 	},
 ];
